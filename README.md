@@ -8,7 +8,7 @@ class="wikilink" alt="712" />
 1. 引脚配置
 <img
 src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/fe617c53fd6f3c56b00272490a264c8af5060480.png"
-class="wikilink" alt="Fig/OTA/Pasted image20251130231934.png" />
+class="wikilink" alt="Fig/OTA/Pasted%image20251130231934.png" />
 2. 引脚模式配置
 <img
 src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/b9226636cda86c9f4f6d7ced2f31882fa94a1764.png"
