@@ -1,18 +1,14 @@
 # 环形指针
 
-<img
-src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/8aa2e88d5b4537b9c1cd00167cff085c94d71bb1.png"
-class="wikilink" alt="570" />
+<img src="Pasted image 20251201034134.png" class="wikilink" alt="570" />
 \# USART 配置
 \## 引脚
 1. 引脚配置
-<img
-src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/fe617c53fd6f3c56b00272490a264c8af5060480.png"
-class="wikilink" alt="Fig/OTA/Pastedimage20251130231934.png" />
+<img src="Pasted image 20251130231934.png" class="wikilink"
+alt="Pastedimage20251130231934.png" />
 2. 引脚模式配置
-<img
-src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/b9226636cda86c9f4f6d7ced2f31882fa94a1764.png"
-class="wikilink" alt="Fig/OTA/Pastedimage20251130232030.png" />
+<img src="Pasted image 20251130232030.png" class="wikilink"
+alt="Pastedimage20251130232030.png" />
 3. 地址
 - USART1 范围：0x4001 3800 - 0x4001 3BFF （参考手册 表 1）
 - USART1_BASE ：0x4001 3800
@@ -273,13 +269,11 @@ int fputc(int ch, FILE *f)
 ## 通道
 
 1.  DMA1
-    <img
-    src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/37a9e77a9c0c3a24e8ab13ff07a0f40e552ffff9.png"
-    class="wikilink" alt="Fig/OTA/Pastedimage20251130232824.png" />
+    <img src="Pasted image 20251130232824.png" class="wikilink"
+    alt="Pastedimage20251130232824.png" />
     2.  DMA2
-        <img
-        src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/3bad2006279c1c9ef28bf9de750672df0f6a3e81.png"
-        class="wikilink" alt="Fig/OTA/Pastedimage20251130233139.png" />
+        <img src="Pasted image 20251130233139.png" class="wikilink"
+        alt="Pastedimage20251130233139.png" />
 
 ## DMA 传输种类
 
@@ -656,9 +650,7 @@ WP 引脚是写保护（Write Protect）
 - WP = 0 → 可以正常读写
 
 <figure>
-<img
-src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/d10871859985934417f317ec53575a9ecde3d8c8.png"
-class="wikilink" alt="628" />
+<img src="Pasted image 20251202113757.png" class="wikilink" alt="628" />
 <figcaption aria-hidden="true">628</figcaption>
 </figure>
 
@@ -697,9 +689,8 @@ EEPROM 内部进行写周期 tWR (5ms 左右)
 - 芯片内部擦写 Flash 单元
 - 整个芯片"关闭输入"，不会响应新的指令
 
-<img
-src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/12705af9f12acc831cf7b0599c75caa89ef6500d.png"
-class="wikilink" alt="Fig/OTA/Pastedimage20251202120119.png" />
+<img src="Pasted image 20251202120119.png" class="wikilink"
+alt="Pastedimage20251202120119.png" />
 \###### 页
 EEPROM 的存储空间按"页"划分，**每页 64 字节**（因为低 6 位地址正好 0-63）。
 Page Write 与 Byte Write 区别只有一点：
@@ -736,9 +727,8 @@ Address = HHHHHHHH LLLLLLxx
 地址 0x003F (页的最后一个字节)
 所有连续超过 64 字节的写入，会**覆盖本页的前面的数据**。
 
-<img
-src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/75ed499724a871a7e7ad582c42b9b166a7ff40c3.png"
-class="wikilink" alt="Fig/OTA/Pastedimage20251202120148.png" />
+<img src="Pasted image 20251202120148.png" class="wikilink"
+alt="Pastedimage20251202120148.png" />
 \###### ACK 轮询
 写入期间（5ms 内）：
 - EEPROM 不接受任何命令
@@ -839,15 +829,11 @@ EEPROM 内部维护一个 **地址计数器（address pointer）**。
 | Random Read | ✔（只写地址） | ✔ | 芯片级回卷 | 从任意地址读取 |
 | Sequential Read | ✔（隐式/显式） | ✔✔✔持续递增 | 芯片级回卷 | 连续大量读取 |
 
-<img
-src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/cbf35c434b3fdf6e4fc42a51687037f4670c6b9f.png"
-class="wikilink" alt="Fig/OTA/Pastedimage20251202131959.png" />
-<img
-src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/65944398187c87df4875d52e3d29738b2e99178b.png"
-class="wikilink" alt="766" />
-<img
-src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/4ef8585b8f7194ba70a3a3591106fda544e0afeb.png"
-class="wikilink" alt="Fig/OTA/Pastedimage20251202132022.png" />
+<img src="Pasted image 20251202131959.png" class="wikilink"
+alt="Pastedimage20251202131959.png" />
+<img src="Pasted image 20251202132009.png" class="wikilink" alt="766" />
+<img src="Pasted image 20251202132022.png" class="wikilink"
+alt="Pastedimage20251202132022.png" />
 
 ## OTA 代码
 
