@@ -1,13 +1,13 @@
 # OTA
 
 # 环形指针
-![[Pasted image 20251201034134.png|644]]
+![[Fig/OTA/Pasted image 20251201034134.png|644]]
 # USART 配置
 ## 引脚
 1. 引脚配置
-	![[Pasted image 20251130231934.png]]
+	![[Fig/OTA/Pasted image 20251130231934.png]]
 2. 引脚模式配置
-	![[Pasted image 20251130232030.png]]
+	![[Fig/OTA/Pasted image 20251130232030.png]]
 3. 地址
 	- USART1 范围：0x4001 3800 - 0x4001 3BFF （参考手册 表 1）
 	- USART1_BASE ：0x4001 3800
@@ -262,9 +262,9 @@ int fputc(int ch, FILE *f)
 # DMA 配置
 ## 通道
 1. DMA1
-		![[Pasted image 20251130232824.png]]
+		![[Fig/OTA/Pasted image 20251130232824.png]]
 	2. DMA2
-		![[Pasted image 20251130233139.png]]
+		![[Fig/OTA/Pasted image 20251130233139.png]]
 
 
 ## DMA 传输种类
@@ -655,7 +655,7 @@ WP 引脚是写保护（Write Protect）
 - WP = 1 → 整个 EEPROM 写保护，不能写
 - WP = 0 → 可以正常读写
 
-![[Pasted image 20251202113757.png|628]]
+![[Fig/OTA/Pasted image 20251202113757.png|628]]
 
 ## 写
 
@@ -691,7 +691,7 @@ EEPROM 内部进行写周期 tWR (5ms 左右)
 - 芯片内部擦写 Flash 单元
 - 整个芯片“关闭输入”，不会响应新的指令
 
-![[Pasted image 20251202120119.png]]
+![[Fig/OTA/Pasted image 20251202120119.png]]
 ###### 页
 EEPROM 的存储空间按“页”划分，**每页 64 字节**（因为低 6 位地址正好 0-63）。
 Page Write 与 Byte Write 区别只有一点：
@@ -724,7 +724,7 @@ Address = HHHHHHHH LLLLLLxx
 地址 0x003F  (页的最后一个字节)
 所有连续超过 64 字节的写入，会**覆盖本页的前面的数据**。
 
-![[Pasted image 20251202120148.png]]
+![[Fig/OTA/Pasted image 20251202120148.png]]
 ###### ACK 轮询
 写入期间（5ms 内）：
 - EEPROM 不接受任何命令
@@ -823,9 +823,9 @@ EEPROM 内部维护一个 **地址计数器（address pointer）**。
 | Random Read          | ✔（只写地址）           | ✔       | 芯片级回卷 | 从任意地址读取    |
 | Sequential Read      | ✔（隐式/显式）          | ✔✔✔持续递增 | 芯片级回卷 | 连续大量读取     |
 
-![[Pasted image 20251202131959.png]]
-![[Pasted image 20251202132009.png|766]]
-![[Pasted image 20251202132022.png]]
+![[Fig/OTA/Pasted image 20251202131959.png]]
+![[Fig/OTA/Pasted image 20251202132009.png|766]]
+![[Fig/OTA/Pasted image 20251202132022.png]]
 
 
 ## OTA 代码
