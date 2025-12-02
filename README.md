@@ -1,49 +1,59 @@
 # 环形指针
-![[Fig/OTA/Pasted image 20251201034134.png|644]]
-# USART 配置
-## 引脚
+
+<img
+src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/8aa2e88d5b4537b9c1cd00167cff085c94d71bb1.png"
+class="wikilink" alt="712" />
+\# USART 配置
+\## 引脚
 1. 引脚配置
-	![[Fig/OTA/Pasted image 20251130231934.png]]
+<img
+src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/fe617c53fd6f3c56b00272490a264c8af5060480.png"
+class="wikilink" alt="Fig/OTA/Pastedimage20251130231934.png" />
 2. 引脚模式配置
-	![[Fig/OTA/Pasted image 20251130232030.png]]
+<img
+src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/b9226636cda86c9f4f6d7ced2f31882fa94a1764.png"
+class="wikilink" alt="Fig/OTA/Pastedimage20251130232030.png" />
 3. 地址
-	- USART1 范围：0x4001 3800 - 0x4001 3BFF （参考手册 表 1）
-	- USART1_BASE ：0x4001 3800
-	- DR 偏移地址：0x04  （参考手册 p 541）
-	- `&(USART1->DR) = USART1_BASE + 0x40 = 0x40013800 + 0x04 = 0x40013804`
-## 中断
-###  UART 空闲中断（IDLE Line Interrupt）是什么？
-> **UART 空闲中断用于检测一帧数据是否结束。**  
-> 当 UART 在 RX 线上 **一个字节时间内没有新数据到来** → 触发 IDLE 中断。
+- USART1 范围：0x4001 3800 - 0x4001 3BFF （参考手册 表 1）
+- USART1_BASE ：0x4001 3800
+- DR 偏移地址：0x04 （参考手册 p 541）
+- `&(USART1->DR) = USART1_BASE + 0x40 = 0x40013800 + 0x04 = 0x40013804`
+\## 中断
+\### UART 空闲中断（IDLE Line Interrupt）是什么？
+\> **UART 空闲中断用于检测一帧数据是否结束。**  
+\> 当 UART 在 RX 线上 **一个字节时间内没有新数据到来** → 触发 IDLE 中断。
 
 场景：
 - DMA 接收不定长数据（常见：Modbus、ESP8266、AT 指令等）
 - 不需要每个字节都进中断
-- 自动判断“本帧结束”
-### 空闲中断的触发条件（非常重要）
+- 自动判断"本帧结束"
+\### 空闲中断的触发条件（非常重要）
 
 IDLE 触发条件：
 
 > **UART 在收到至少 1 个字节后，在一个帧的时长内没有再收到新字节**
 
 比如：
-115200 波特率 → 1 字节时间 = 1 / 115200 * 10bit ≈ **87µs**
+115200 波特率 → 1 字节时间 = 1 / 115200 \* 10bit ≈ **87µs**
 若 87µs 内没有新数据 → 空闲中断触发。
-### 空闲中断的寄存器位
+\### 空闲中断的寄存器位
 
-|功能|寄存器|位|
-|---|---|---|
-|空闲中断标志|USART_SR|**IDLE (bit 4)**|
-|空闲中断使能|USART_CR1|**IDLEIE (bit 4)**|
+| 功能         | 寄存器    | 位                 |
+|--------------|-----------|--------------------|
+| 空闲中断标志 | USART_SR  | **IDLE (bit 4)**   |
+| 空闲中断使能 | USART_CR1 | **IDLEIE (bit 4)** |
 
 ### 开启空闲中断（标准库）
 
-1. 开启 UART 空闲中断（CR1）
-```cpp
+1.  开启 UART 空闲中断（CR1）
+
+``` cpp
 USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
 ```
-2. 开启 NVIC
-```cpp
+
+2.  开启 NVIC
+
+``` cpp
 NVIC_InitTypeDef NVIC_InitStructure;
 NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
 NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
@@ -52,9 +62,11 @@ NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
 NVIC_Init(&NVIC_InitStructure);
 ```
+
 3.  UART 空闲中断处理函数（最关键）
-	**⚠ 必须读 SR → DR 来清除 IDLE 标志，否则中断会一直进入。**
-```cpp
+    **⚠ 必须读 SR → DR 来清除 IDLE 标志，否则中断会一直进入。**
+
+``` cpp
 void USART1_IRQHandler(void)
 {
     /* 空闲中断 */
@@ -73,9 +85,9 @@ void USART1_IRQHandler(void)
 }
 ```
 
-
 ## OTA 代码
-```cpp
+
+``` cpp
 #ifndef __USER_USART_H__
 #define __USER_USART_H__
 
@@ -122,10 +134,9 @@ void USART1_IRQHandler(void);
 extern UCB_CB UxCB;
 
 #endif /* __UASRT_H__ */
-
 ```
 
-```cpp
+``` cpp
 #include "stm32f10x.h"
 #include "UserUSART.h"
 #include <stdio.h>
@@ -255,131 +266,124 @@ int fputc(int ch, FILE *f)
     USART_SendData(USARTx, (uint8_t)ch);
     return ch;
 }
-
 ```
-# DMA 配置
-## 通道
-1. DMA1
-		![[Fig/OTA/Pasted image 20251130232824.png]]
-	2. DMA2
-		![[Fig/OTA/Pasted image 20251130233139.png]]
 
+# DMA 配置
+
+## 通道
+
+1.  DMA1
+    <img
+    src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/37a9e77a9c0c3a24e8ab13ff07a0f40e552ffff9.png"
+    class="wikilink" alt="Fig/OTA/Pastedimage20251130232824.png" />
+    2.  DMA2
+        <img
+        src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/3bad2006279c1c9ef28bf9de750672df0f6a3e81.png"
+        class="wikilink" alt="Fig/OTA/Pastedimage20251130233139.png" />
 
 ## DMA 传输种类
 
-| 类型      | 描述                         |
-| ------- | -------------------------- |
-| 外设 → 内存 | ADC、串口接收                   |
-| 内存 → 外设 | 串口发送、DAC                   |
+| 类型        | 描述                                  |
+|-------------|---------------------------------------|
+| 外设 → 内存 | ADC、串口接收                         |
+| 内存 → 外设 | 串口发送、DAC                         |
 | 内存 → 内存 | 快速内存复制，必须设置 `M2M = ENABLE` |
 
 `DMA_DIR_PeripheralSRC`：外设 → 内存（如 ADC）  
 `DMA_DIR_PeripheralDST`：内存 → 外设（如 USART 发送）
 
-| 传输模型                         | DMA_DIR               | DMA_M2M   | 说明                 |
-| ---------------------------- | --------------------- | --------- | ------------------ |
-| **外设 → 内存**（ADC、USART RX 等）  | DMA_DIR_PeripheralSRC | ❌ Disable | 数据源是外设寄存器，必须依外设触发  |
+| 传输模型 | DMA_DIR | DMA_M2M | 说明 |
+|----|----|----|----|
+| **外设 → 内存**（ADC、USART RX 等） | DMA_DIR_PeripheralSRC | ❌ Disable | 数据源是外设寄存器，必须依外设触发 |
 | **内存 → 外设**（USART TX、SPI TX） | DMA_DIR_PeripheralDST | ❌ Disable | 数据目标是外设寄存器，必须依外设触发 |
-| **内存 → 内存**（M2M copy）        | 任意                    | ✔ Enable  | 两地址都是内存，与外设无关      |
+| **内存 → 内存**（M2M copy） | 任意 | ✔ Enable | 两地址都是内存，与外设无关 |
 
 ## DMA_InitTypeDef初始化结构体
-		
-```cpp
+
+``` cpp
 void DMA_MTM_Config(void)
 {
-	/*定义DMA初始化结构体*/
-	DMA_InitTypeDef DMA_InitStruct;
-	/*打开DMA外设时钟，DMA挂载在AHB总线时钟上*/
-	RCC_AHBPeriphClockCmd(DMA_MTM_CLK, ENABLE);
-	/*设置外设基地址，即源地址*/
-	DMA_InitStruct.DMA_PeripheralBaseAddr =	(uint32_t) aSRC_Const_Buffer;
-	/*设置目标存储器地址，即目标地址*/
-	DMA_InitStruct.DMA_MemoryBaseAddr	  =	(uint32_t) aDST_Buffer;
-	/*配置传输方向，这里为止解决的是从哪里来，到哪里去*/
-	DMA_InitStruct.DMA_DIR 				  =	DMA_DIR_PeripheralSRC;
-	/*设置要传输的数量*/
-	// DMA 要搬运的 **数据个数**- 单位取决于 DataSize（Byte/HalfWord/Word）
-	// DMA_BufferSize 减到 0 → 硬件置位内部 **TC（Transfer Complete）** 标志；
-	DMA_InitStruct.DMA_BufferSize		  =	BUFFER_SIZE;
-	/*设置外设的字宽*/
-	DMA_InitStruct.DMA_PeripheralDataSize =	DMA_PeripheralDataSize_Word;
-	/*外设地址是否自增*/
-	DMA_InitStruct.DMA_PeripheralInc	  =	DMA_PeripheralInc_Enable;
-	/*存储器地址是否自增*/
-	DMA_InitStruct.DMA_MemoryInc		  =	DMA_MemoryInc_Enable;
-	/*存储器数据宽度 - 目标端的数据宽度 - 设置为 32bit，与源端一致 → 正确。*/
-	DMA_InitStruct.DMA_MemoryDataSize	  =	DMA_MemoryDataSize_Word;
-	/*设置传输模式是一次性传输，还是循环传输*/
-	// Circular：传输完自动返回起点（常用于 ADC 连续传输）
-	// 重新回到起始地址
-	DMA_InitStruct.DMA_Mode				  =	DMA_Mode_Normal;
-	/*设置优先级*/
-	DMA_InitStruct.DMA_Priority			  =	DMA_Priority_High;
-	/*开启存储器到存储器传输*/
-	// 存储器到存储器必须开启，否则 M2M 复制无法进行 - 开启后 DMA 不依赖外设触发，可自行运行。
-	DMA_InitStruct.DMA_M2M				  =	DMA_M2M_Enable;
-	/*DMA初始化*/
-	DMA_Init(DMA_MTM_CHANNEL, &DMA_InitStruct);
-	/*打开DMA通道*/
-	DMA_Cmd(DMA_MTM_CHANNEL,  ENABLE);
+    /*定义DMA初始化结构体*/
+    DMA_InitTypeDef DMA_InitStruct;
+    /*打开DMA外设时钟，DMA挂载在AHB总线时钟上*/
+    RCC_AHBPeriphClockCmd(DMA_MTM_CLK, ENABLE);
+    /*设置外设基地址，即源地址*/
+    DMA_InitStruct.DMA_PeripheralBaseAddr = (uint32_t) aSRC_Const_Buffer;
+    /*设置目标存储器地址，即目标地址*/
+    DMA_InitStruct.DMA_MemoryBaseAddr     = (uint32_t) aDST_Buffer;
+    /*配置传输方向，这里为止解决的是从哪里来，到哪里去*/
+    DMA_InitStruct.DMA_DIR                = DMA_DIR_PeripheralSRC;
+    /*设置要传输的数量*/
+    // DMA 要搬运的 **数据个数**- 单位取决于 DataSize（Byte/HalfWord/Word）
+    // DMA_BufferSize 减到 0 → 硬件置位内部 **TC（Transfer Complete）** 标志；
+    DMA_InitStruct.DMA_BufferSize         = BUFFER_SIZE;
+    /*设置外设的字宽*/
+    DMA_InitStruct.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
+    /*外设地址是否自增*/
+    DMA_InitStruct.DMA_PeripheralInc      = DMA_PeripheralInc_Enable;
+    /*存储器地址是否自增*/
+    DMA_InitStruct.DMA_MemoryInc          = DMA_MemoryInc_Enable;
+    /*存储器数据宽度 - 目标端的数据宽度 - 设置为 32bit，与源端一致 → 正确。*/
+    DMA_InitStruct.DMA_MemoryDataSize     = DMA_MemoryDataSize_Word;
+    /*设置传输模式是一次性传输，还是循环传输*/
+    // Circular：传输完自动返回起点（常用于 ADC 连续传输）
+    // 重新回到起始地址
+    DMA_InitStruct.DMA_Mode               = DMA_Mode_Normal;
+    /*设置优先级*/
+    DMA_InitStruct.DMA_Priority           = DMA_Priority_High;
+    /*开启存储器到存储器传输*/
+    // 存储器到存储器必须开启，否则 M2M 复制无法进行 - 开启后 DMA 不依赖外设触发，可自行运行。
+    DMA_InitStruct.DMA_M2M                = DMA_M2M_Enable;
+    /*DMA初始化*/
+    DMA_Init(DMA_MTM_CHANNEL, &DMA_InitStruct);
+    /*打开DMA通道*/
+    DMA_Cmd(DMA_MTM_CHANNEL,  ENABLE);
  }
 ```
-
 
 ## DMA 中断
 
 > **DMA 中断需要：DMA_ITConfig 开启控制位 + NVIC_Init 开启 NVIC 通道**  
 > **TC/HT/TE 三种中断分别对应 TCIFx、HTIFx、TEIFx 标志位。**
-### 标志位说明
+> \### 标志位说明
 
-| 中断事件       | 标志位（状态寄存器）                         | 控制位（使能寄存器）                             | 说明                     |
-| ---------- | ---------------------------------- | -------------------------------------- | ---------------------- |
-| **传输完成中断** | `TCIFx`，**不会自动触发中断**，除非 `TCIE` 被使能 | `TCIE`，控制 DMA 是否在 `TCIFx` 置位时 **触发中断** | 完成全部缓冲区传输时触发           |
-| **半传输中断**  | `HTIFx`                            | `HTIE`                                 | 完成一半传输时触发（常用于双缓冲/流式处理） |
-| **传输错误中断** | `TEIFx`                            | `TEIE`                                 | DMA 发现错误时触发（优先级最高）     |
-|            |                                    |                                        |                        |
+| 中断事件 | 标志位（状态寄存器） | 控制位（使能寄存器） | 说明 |
+|----|----|----|----|
+| **传输完成中断** | `TCIFx`，**不会自动触发中断**，除非 `TCIE` 被使能 | `TCIE`，控制 DMA 是否在 `TCIFx` 置位时 **触发中断** | 完成全部缓冲区传输时触发 |
+| **半传输中断** | `HTIFx` | `HTIE` | 完成一半传输时触发（常用于双缓冲/流式处理） |
+| **传输错误中断** | `TEIFx` | `TEIE` | DMA 发现错误时触发（优先级最高） |
+|  |  |  |  |
 
-1. 什么时候用半传输中断（HTIE）？
-	- 双缓冲数据处理
-	- 串口长帧接收（DMA + HT 中断）
-	- 音频数据流连续采样（ADC + DMA + HT）
-	- 处理“前半段时处理前半缓冲，后半段处理后半缓冲”
-	如果只需要一次性传输或环形传输→通常只开 **TCIE**。
-
-2. 什么时候用传输错误中断（TEIE）？
-	几乎所有项目都建议开启：`DMA_IT_TE`，可以发现：
-	- 地址越界
-	- 配置错误
-	- DMA 未正确使能外设触发
+1.  什么时候用半传输中断（HTIE）？
+    - 双缓冲数据处理
+    - 串口长帧接收（DMA + HT 中断）
+    - 音频数据流连续采样（ADC + DMA + HT）
+    - 处理"前半段时处理前半缓冲，后半段处理后半缓冲"
+      如果只需要一次性传输或环形传输→通常只开 **TCIE**。
+2.  什么时候用传输错误中断（TEIE）？
+    几乎所有项目都建议开启：`DMA_IT_TE`，可以发现：
+    - 地址越界
+    - 配置错误
+    - DMA 未正确使能外设触发
 
 ### 启用 DMA 中断的流程
 
 DMA 中断必须 **同时开启两个地方**：
 1. DMA 本身的中断控制位
-	```cpp
-	DMA_ITConfig(DMA_ChannelX, DMA_IT_TC, ENABLE);  // 传输完成中断
-	DMA_ITConfig(DMA_ChannelX, DMA_IT_HT, ENABLE);  // 半传输中断 
-	DMA_ITConfig(DMA_ChannelX, DMA_IT_TE, ENABLE);  // 传输错误中断
-	```
-	示例：
-	`DMA_ITConfig(DMA1_Channel1, DMA_IT_TC | DMA_IT_TE, ENABLE);`
+`cpp     DMA_ITConfig(DMA_ChannelX, DMA_IT_TC, ENABLE);  // 传输完成中断     DMA_ITConfig(DMA_ChannelX, DMA_IT_HT, ENABLE);  // 半传输中断      DMA_ITConfig(DMA_ChannelX, DMA_IT_TE, ENABLE);  // 传输错误中断`
+示例：
+`DMA_ITConfig(DMA1_Channel1, DMA_IT_TC | DMA_IT_TE, ENABLE);`
 
-2. NVIC 中断使能
-	DMA 中断属于 Cortex-M NVIC，需要配置：
-	```cpp
-	NVIC_InitTypeDef NVIC_InitStructure; // 定义 NVIC 初始化结构体
-	NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel1_IRQn; // 选择中断源：DMA1 通道1
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1; // 抢占优先级 1（0~15，数值越小越优先）
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1; // 子优先级 1（0~15，同级抢占下再细分）
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; // 使能该中断通道
-	NVIC_Init(&NVIC_InitStructure); // 写入 NVIC 寄存器，配置生效
-	```
----
+2.  NVIC 中断使能
+    DMA 中断属于 Cortex-M NVIC，需要配置：
+    `cpp  NVIC_InitTypeDef NVIC_InitStructure; // 定义 NVIC 初始化结构体  NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel1_IRQn; // 选择中断源：DMA1 通道1  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1; // 抢占优先级 1（0~15，数值越小越优先）  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1; // 子优先级 1（0~15，同级抢占下再细分）  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; // 使能该中断通道  NVIC_Init(&NVIC_InitStructure); // 写入 NVIC 寄存器，配置生效`
+    ---
 
 ### DMA 中断服务函数（ISR）
 
 根据通道不同，ISR 名字如下：
-```cpp
+
+``` cpp
 void DMA1_Channel1_IRQHandler(void);   // 仅 Channel1
 void DMA1_Channel2_IRQHandler(void);   // Channel2 + Channel3 共用
 void DMA1_Channel3_IRQHandler(void);   // 同上，实际进同一函数
@@ -391,7 +395,7 @@ void DMA1_Channel7_IRQHandler(void);   // 同上
 
 模板：
 
-```cpp
+``` cpp
 void DMA1_Channel1_IRQHandler(void)
 {
     if (DMA_GetITStatus(DMA1_IT_TC1)) { // 确认是 Channel1 传输完成
@@ -412,7 +416,8 @@ void DMA1_Channel1_IRQHandler(void)
 ```
 
 ### 接口函数
-```cpp
+
+``` cpp
 // 使能DMA时钟  
 RCC_AHBPeriphClockCmd(); 
 // 初始化DMA通道参数  
@@ -429,8 +434,10 @@ DMA_GetFlagStatus();
 DMA_GetCurrDataCounter(); 
 DMA_SetCurrDataCounter(); // /设置通道当前剩余数据量
 ```
+
 ## OTA 代码
-```cpp
+
+``` cpp
 void User_DMA_Init(void)
 {
     if (DMAx == DMA1) RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE); // 开启DMA时钟
@@ -463,20 +470,17 @@ void User_DMA_Init(void)
 # I2C
 
 ## I2C 时序要求
-1. I²C 空闲状态必须是 SCL=1、SDA=1。
-2. I²C 协议规定，一个 bit 的结束必须将 SCL 拉回低电平。
-3. ACK 位也是一个 bit，因此也必须按同样规律：SCL_L → SCL_H → SCL_L
-4. 只能在 SCL 为低时改变 SDA
-5. 在 SCL 高电平稳定时读取
-	```cpp
-	SCL:  _|‾|_|‾|_|‾|_|‾|_ ...
-	SDA:    ↑   ↑   ↑   ↑
-	       slave 输出数据位
-	```
+
+1.  I²C 空闲状态必须是 SCL=1、SDA=1。
+2.  I²C 协议规定，一个 bit 的结束必须将 SCL 拉回低电平。
+3.  ACK 位也是一个 bit，因此也必须按同样规律：SCL_L → SCL_H → SCL_L
+4.  只能在 SCL 为低时改变 SDA
+5.  在 SCL 高电平稳定时读取
+    `cpp  SCL:  _|‾|_|‾|_|‾|_|‾|_ ...  SDA:    ↑   ↑   ↑   ↑         slave 输出数据位`
 
 ## OTA 代码
 
-```cpp
+``` cpp
 #ifndef __USERIIC_H__
 #define __USERIIC_H__
 
@@ -503,10 +507,9 @@ void IICSendByte(uint8_t Byte);
 uint8_t IICReceiveByte(uint8_t Ack);
 
 #endif /* __USERI2C_H__ */
-
 ```
 
-```cpp
+``` cpp
 #include "stm32f10x.h"
 #include "UserIIC.h"
 #include "Delay.h"
@@ -634,16 +637,15 @@ void UserIICInit(void)
     IIC_SCL_H;
     IIC_SDA_H;
 }
-
 ```
-
 
 # AT24C256
 
 ## 地址
-- 前 4 位固定为 1010（十六进制 0xA，这是 _所有 I²C EEPROM 的厂商规定（行业标准）_，表示这是一个 EEPROM 器件。
-- 接下来三位 A2 A1 A0 是“硬件器件地址”，**如果 A2/A1/A0 不接，芯片会自动认为它是 0（内部下拉）**。
-- 第 8 位是 Read / Write 选择位：R/W = 0   → 写操作， R/W = 1   → 读操作
+
+- 前 4 位固定为 1010（十六进制 0xA，这是 *所有 I²C EEPROM 的厂商规定（行业标准）*，表示这是一个 EEPROM 器件。
+- 接下来三位 A2 A1 A0 是"硬件器件地址"，**如果 A2/A1/A0 不接，芯片会自动认为它是 0（内部下拉）**。
+- 第 8 位是 Read / Write 选择位：R/W = 0 → 写操作， R/W = 1 → 读操作
 
 如果 A2=A1=A0 都接 GND：
 1. 写地址：1010 0000 = 0xA0
@@ -653,15 +655,22 @@ WP 引脚是写保护（Write Protect）
 - WP = 1 → 整个 EEPROM 写保护，不能写
 - WP = 0 → 可以正常读写
 
-![[Fig/OTA/Pasted image 20251202113757.png|628]]
+<figure>
+<img
+src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/d10871859985934417f317ec53575a9ecde3d8c8.png"
+class="wikilink" alt="628" />
+<figcaption aria-hidden="true">628</figcaption>
+</figure>
 
 ## 写
 
-###### 字节 
-AT24C256 是 32KB（地址 0x0000 ~ 0x7FFF），所以地址是 **16 位**，需要发送两个字节
+###### 字节
+
+AT24C256 是 32KB（地址 0x0000 \~ 0x7FFF），所以地址是 **16 位**，需要发送两个字节
 
 流程示意
-```cpp
+
+``` cpp
 START
 ↓
 发送 8-bit 设备地址（写，例如 0xA0）
@@ -683,20 +692,22 @@ EEPROM ACK
 STOP（结束写序列）
 ↓
 EEPROM 内部进行写周期 tWR (5ms 左右)
-
 ```
 
 - 芯片内部擦写 Flash 单元
-- 整个芯片“关闭输入”，不会响应新的指令
+- 整个芯片"关闭输入"，不会响应新的指令
 
-![[Fig/OTA/Pasted image 20251202120119.png]]
-###### 页
-EEPROM 的存储空间按“页”划分，**每页 64 字节**（因为低 6 位地址正好 0-63）。
+<img
+src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/12705af9f12acc831cf7b0599c75caa89ef6500d.png"
+class="wikilink" alt="Fig/OTA/Pastedimage20251202120119.png" />
+\###### 页
+EEPROM 的存储空间按"页"划分，**每页 64 字节**（因为低 6 位地址正好 0-63）。
 Page Write 与 Byte Write 区别只有一点：
 **写完第一个数据后不发送 STOP，而是继续发送更多数据（最多 64 个）。**
 
 示意
-```cpp
+
+``` cpp
 START
 设备地址(A0) → ACK
 地址高字节 → ACK
@@ -712,18 +723,23 @@ EEPROM 内部写64字节
 ```
 
 ###### 地址自动递增（Auto-increment）+ 页回卷（roll-over）
-因为低 6 位可以表示 0~63 → 对应 64 字节，高地址字节保持不变，所以不会跨页。
-```cpp
+
+因为低 6 位可以表示 0\~63 → 对应 64 字节，高地址字节保持不变，所以不会跨页。
+
+``` cpp
 Address = HHHHHHHH LLLLLLxx
                        ↑↑↑↑↑↑
                      自动递增的部分（0~63）
 ```
+
 如果从一个页的末尾地址开始写，例如：
-地址 0x003F  (页的最后一个字节)
+地址 0x003F (页的最后一个字节)
 所有连续超过 64 字节的写入，会**覆盖本页的前面的数据**。
 
-![[Fig/OTA/Pasted image 20251202120148.png]]
-###### ACK 轮询
+<img
+src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/75ed499724a871a7e7ad582c42b9b166a7ff40c3.png"
+class="wikilink" alt="Fig/OTA/Pastedimage20251202120148.png" />
+\###### ACK 轮询
 写入期间（5ms 内）：
 - EEPROM 不接受任何命令
 - 不会 ACK 器件地址
@@ -732,20 +748,20 @@ Address = HHHHHHHH LLLLLLxx
 - 当写完后，它会 ACK（拉低 SDA）。
 
 ###### 注意
+
 - **不要在 page write 中发送超过 64 字节**，因为会覆盖本页。
 - **写操作后执行 ACK-polling**：写操作触发设备内部写周期（tWR），在此期间设备不会 ACK。通过轮询设备地址直到 ACK 即可检测写完成，避免盲等固定延时。
-- **Read 操作的 auto-increment**：读（sequential read）也会在地址自动递增，且读取到**地址末（不是页末）** 会继续回卷到**芯片首地址（不是页）**（same page wrap）——注意读也遵循相同的低 6 位回卷规则（不过常见用法是跨页读时先设置地址然后连续读多个字节，芯片会按同样的低位回卷行为返回数据）。
+- **Read 操作的 auto-increment**：读（sequential read）也会在地址自动递增，且读取到**地址末（不是页末）** 会继续回卷到**芯片首地址（不是页）**（same page wrap）------注意读也遵循相同的低 6 位回卷规则（不过常见用法是跨页读时先设置地址然后连续读多个字节，芯片会按同样的低位回卷行为返回数据）。
 
 ## 读
 
 I²C EEPROM（ AT24C256 系列）共有三种读操作：
 
-1. **Current Address Read（当前地址读）**
-    
-2. **Random Read（随机地址读）** —— 实际上由 Dummy Write + Current Read 构成
-    
-3. **Sequential Read（顺序读）**
-    
+1.  **Current Address Read（当前地址读）**
+
+2.  **Random Read（随机地址读）** ------ 实际上由 Dummy Write + Current Read 构成
+
+3.  **Sequential Read（顺序读）**
 
 核心机制是：
 - 读出数据后，只要 MCU 继续发 ACK，EEPROM 就 **自动递增地址**（Auto-Increment）继续输出下一字节。
@@ -753,8 +769,8 @@ I²C EEPROM（ AT24C256 系列）共有三种读操作：
 - **当且仅当达到址达最大值才会回卷** ，页末是不会回卷的。
 - **所有读操作（Current / Random / Sequential Read）在地址溢出时，回卷（roll-over）的目标都是整个 EEPROM 的最起始地址（0x0000）**。
 
-
 ###### Current Address Read（当前地址读）
+
 EEPROM 内部维护一个 **地址计数器（address pointer）**。
 - 是上一次操作所使用的地址 **+ 1**
 - 如果电源保持不断电，此地址一直有效。
@@ -769,10 +785,11 @@ EEPROM 内部维护一个 **地址计数器（address pointer）**。
 自动递增 + 回卷
 - 读完 1 字节后，EEPROM 自动执行：`address++`
 - 若到**最后地址**（如 0x7FFF）：
-    - 再++ → 回卷为 **0x0000**
+- 再++ → 回卷为 **0x0000**
 
 ###### Random Read（随机地址读）
-“先写地址，但不写数据，再读”
+
+"先写地址，但不写数据，再读"
 
 时序步骤
 1. MCU 发 START
@@ -782,11 +799,11 @@ EEPROM 内部维护一个 **地址计数器（address pointer）**。
 5. EEPROM ACK
 6. MCU 发送 **地址低字节**
 7. EEPROM ACK  
-    （这里就是所谓的 “dummy write”，只是写地址，不写数据）
+（这里就是所谓的 "dummy write"，只是写地址，不写数据）
 8. MCU 发 **重复起始（Repeated START）**
 9. MCU 发设备地址 + **R（读）**
 10. EEPROM ACK
-11. EEPROM 输出 “刚才指定的地址” 的数据
+11. EEPROM 输出 "刚才指定的地址" 的数据
 12. MCU NACK + STOP 结束
 
 自动递增
@@ -794,6 +811,7 @@ EEPROM 内部维护一个 **地址计数器（address pointer）**。
 - 如果继续发 ACK，而不是 NACK，那么就进入顺序读（Sequential Read）。
 
 ###### Sequential Read（顺序读）
+
 顺序读等于： Current Address Read / Random Read 的拓展版
 
 只要 MCU 对每个字节发送 **ACK（0）**，EEPROM 就继续：
@@ -810,24 +828,30 @@ EEPROM 内部维护一个 **地址计数器（address pointer）**。
 1. 当 EEPROM **地址达到最大值**，例如 24LC256（32KB）→ 最后地址 0x7FFF
 2. 当继续 auto-increment：`0x7FFF + 1 → 0x0000`
 3. 顺序读会从 EEPROM 开头继续读（循环读整个芯片）。
-> 注意：  
-> 回卷不是进入下一页，而是直接回到 **整个芯片的开始**，回卷只会发生在读到**地址达到最大值**。
+\> 注意：  
+\> 回卷不是进入下一页，而是直接回到 **整个芯片的开始**，回卷只会发生在读到**地址达到最大值**。
 
 ###### 总结
 
-| 类型                   | 是否需要 dummy write? | 地址自动递增  | 回卷方式  | 使用场景       |
-| -------------------- | ----------------- | ------- | ----- | ---------- |
-| Current Address Read | ❌                 | ✔       | 芯片级回卷 | 连续读取，不指定地址 |
-| Random Read          | ✔（只写地址）           | ✔       | 芯片级回卷 | 从任意地址读取    |
-| Sequential Read      | ✔（隐式/显式）          | ✔✔✔持续递增 | 芯片级回卷 | 连续大量读取     |
+| 类型 | 是否需要 dummy write? | 地址自动递增 | 回卷方式 | 使用场景 |
+|----|----|----|----|----|
+| Current Address Read | ❌ | ✔ | 芯片级回卷 | 连续读取，不指定地址 |
+| Random Read | ✔（只写地址） | ✔ | 芯片级回卷 | 从任意地址读取 |
+| Sequential Read | ✔（隐式/显式） | ✔✔✔持续递增 | 芯片级回卷 | 连续大量读取 |
 
-![[Fig/OTA/Pasted image 20251202131959.png]]
-![[Fig/OTA/Pasted image 20251202132009.png|766]]
-![[Fig/OTA/Pasted image 20251202132022.png]]
-
+<img
+src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/cbf35c434b3fdf6e4fc42a51687037f4670c6b9f.png"
+class="wikilink" alt="Fig/OTA/Pastedimage20251202131959.png" />
+<img
+src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/65944398187c87df4875d52e3d29738b2e99178b.png"
+class="wikilink" alt="766" />
+<img
+src="OTA%EF%BC%88STM32F103C8T6%EF%BC%89-media/4ef8585b8f7194ba70a3a3591106fda544e0afeb.png"
+class="wikilink" alt="Fig/OTA/Pastedimage20251202132022.png" />
 
 ## OTA 代码
-```cpp
+
+``` cpp
 #ifndef __AT24C256_H__
 #define __AT24C256_H__
 
@@ -851,10 +875,9 @@ int8_t AT24C256_WritePage(uint16_t memAddr, uint8_t *bytes, uint8_t writeLen);
 int8_t AT24C256_ReadBytes(uint16_t memAddr, uint8_t *bytes, uint8_t readLen);
 
 #endif /* __AT24C256_H__ */
-
 ```
 
-```cpp
+``` cpp
 #include "stm32f10x.h"
 #include "AT24C256.h"
 #include "UserIIC.h"
@@ -962,7 +985,6 @@ int8_t AT24C256_ReadBytes(uint16_t memAddr, uint8_t *bytes, uint8_t readLen)
     IICStop();
     return 0;
 }
-
 
 
 ```
