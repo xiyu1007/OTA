@@ -1,5 +1,3 @@
-# OTA
-
 # 环形指针
 ![[Fig/OTA/Pasted image 20251201034134.png|644]]
 # USART 配置
