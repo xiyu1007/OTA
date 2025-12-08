@@ -6,8 +6,9 @@
 #include "UserUSART.h"
 #include "AT24C256.h"
 
+extern UCB_CB UxCB;
 volatile uint16_t  i;
-uint16_t buffLen = 64;
+uint16_t buffLen =64;
 
 void printError(int err)
 {
@@ -40,8 +41,11 @@ void printError(int err)
 int main(void)
 {
     User_USART_Init();
-
+    UserIICInit();
     OLED_Init();
+
+
+
     // OLED_ShowString(1, 3, "HelloWorld!");
     OLED_Clear();
 
@@ -49,9 +53,9 @@ int main(void)
 
     for (i = 0; i < buffLen; i++)
     {
-        AT24C256_WriteByte(i, (uint8_t)i);
+        printError(AT24C256_WriteByte(i, (uint8_t)i));
+        Delay_ms(6); // 等待写入完成
         OLED_ShowNum(1,1,(uint8_t)i,3);
-        // Delay_ms(1000);
     }
     uint8_t buf[buffLen];
     printError(AT24C256_ReadBytes(0, buf, buffLen));
@@ -77,4 +81,10 @@ int main(void)
         // printf("Hello world. \r\n");
         Delay_ms(1000);
     };
+}
+
+// TODO 修改为对应的USARTx中断处理函数
+void USART1_IRQHandler(void)
+{
+    USARTx_IRQHandler();
 }

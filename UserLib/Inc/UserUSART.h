@@ -4,6 +4,20 @@
 #include "stm32f10x.h"
 #include <stdio.h>
 
+#ifndef USARTx
+#define USARTx USART1
+#define USARTTx GPIO_Pin_9
+#define USARTRx GPIO_Pin_10
+#define GPIOx GPIOA
+#define DMAx DMA1
+#define USART_DMA_TX_CH DMA1_Channel4 // USART1 TX
+#define USART_DMA_RX_CH DMA1_Channel5 // USART1 RX
+// #define USART_DMA_TX_CH   DMA1_Channel6 // USART2 TX
+// #define USART_DMA_RX_CH   DMA1_Channel7 // USART2 RX
+// #define USART_DMA_TX_CH   DMA1_Channel2 // USART3 TX
+// #define USART_DMA_RX_CH   DMA1_Channel3 // USART3 RX
+#endif
+
 #define U_TX_SIZE   2048    // 环形缓冲区总大小（字节数）
 #define U_RX_SIZE   2048    // 环形缓冲区总大小（字节数）
 #define U_RX_MAX    256     // 每次单独接收最大字节数
@@ -40,6 +54,7 @@ typedef struct {
 
 
 void User_USART_Init(void);
-extern UCB_CB UxCB;
+void USARTx_IRQHandler(void);
+// extern UCB_CB UxCB;
 
 #endif /* __UASRT_H__ */

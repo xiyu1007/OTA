@@ -2,33 +2,11 @@
 #include "UserUSART.h"
 #include <stdio.h>
 
-#ifndef USARTx
-#define USARTx USART1
-#define USARTTx GPIO_Pin_9
-#define USARTRx GPIO_Pin_10
-#define GPIOx GPIOA
-#define DMAx DMA1
-#define USART_DMA_TX_CH DMA1_Channel4 // USART1 TX
-#define USART_DMA_RX_CH DMA1_Channel5 // USART1 RX
-// #define USART_DMA_TX_CH   DMA1_Channel6 // USART2 TX
-// #define USART_DMA_RX_CH   DMA1_Channel7 // USART2 RX
-// #define USART_DMA_TX_CH   DMA1_Channel2 // USART3 TX
-// #define USART_DMA_RX_CH   DMA1_Channel3 // USART3 RX
-#endif
-
 uint8_t URxBuffer[U_RX_SIZE]; // 接收缓冲区
 UCB_CB UxCB;
 
 void UxCB_Init(void);
-void USARTx_IRQHandler(void);
 void User_DMA_Init(void);
-void USARTx_IRQHandler(void);
-
-// TODO 修改为对应的USARTx中断处理函数
-void USART1_IRQHandler(void)
-{
-    USARTx_IRQHandler();
-}
 
 void User_USART_Init(void)
 {
