@@ -12,11 +12,9 @@
 #define AT24C_ADDR_LEN 2 // 地址字节数
 
 #define ERR_OK 0
-#define ERR_NAK -1
-#define ERR_TIMEOUT -2
-#define ERR_BUSY -3
-#define ERR_ADD_NAK -4
-#define ERR_MEM_NAK -5
+#define ERR_ADD_NAK 1
+#define ERR_MEM_NAK 2
+#define ERR_DATA_NAK 3
 
 int8_t AT24C256_WriteByte(uint16_t memAddr, uint8_t byte);
 int8_t AT24C256_WritePage(uint16_t memAddr, uint8_t *bytes, uint16_t writeLen);

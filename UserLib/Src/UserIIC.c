@@ -41,12 +41,11 @@ void IICSendByte(uint8_t Byte)
     {
         IIC_SCL_L;
         Delay_us(IIC_DELAY);
-        if (Byte & (1 << i))
-        {              // 1左移7位：0x 1000 0000
+        if (Byte & (1 << i)){              
+            // 1左移7位：0x 1000 0000
             IIC_SDA_H; // 注意分号
         }
-        else
-        {
+        else{
             IIC_SDA_L;
         }
 
@@ -92,7 +91,6 @@ uint8_t IICReceiveByte(uint8_t Ack)
     return Byte;
 }
 
-extern void printf(const char *fmt, ...);
 int8_t IICWaitACk(void)
 {
     // IIC_SDA_H; // 释放 SDA，准备接收从机应答
@@ -119,20 +117,20 @@ int8_t IICWaitACk(void)
     return IIC_ACK_OK; // 成功接收从机应答
 }
 
-void UserIICInit(void)
+void User_IIC_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct = {0};
-    if (GPIOx == GPIOA)
+    if (GPIOx_IIC == GPIOA)
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-    else if (GPIOx == GPIOB)
+    else if (GPIOx_IIC == GPIOB)
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-    else if (GPIOx == GPIOC)
+    else if (GPIOx_IIC == GPIOC)
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
 
     GPIO_InitStruct.GPIO_Pin = IIC_SCL_Pin | IIC_SDA_Pin;
     GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_OD;
     GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOx, &GPIO_InitStruct);
+    GPIO_Init(GPIOx_IIC, &GPIO_InitStruct);
 
     IIC_SCL_H;
     IIC_SDA_H;

@@ -25,23 +25,22 @@ void User_USART_Init(void)
     NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStruct);
 
-    if (GPIOx == GPIOA)
+    if (GPIOx_USART == GPIOA)
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-    else if (GPIOx == GPIOB)
+    else if (GPIOx_USART == GPIOB)
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-    else if (GPIOx == GPIOC)
+    else if (GPIOx_USART == GPIOC)
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
 
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
     GPIO_InitTypeDef GPIO_InitStruct = {0};
     GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
     GPIO_InitStruct.GPIO_Pin = USARTTx;
     GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOx, &GPIO_InitStruct);
+    GPIO_Init(GPIOx_USART, &GPIO_InitStruct);
     GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;
     GPIO_InitStruct.GPIO_Pin = USARTRx;
     GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOx, &GPIO_InitStruct);
+    GPIO_Init(GPIOx_USART, &GPIO_InitStruct);
 
     if (USARTx == USART1)
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);

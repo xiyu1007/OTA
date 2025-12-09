@@ -8,7 +8,7 @@
 #define USARTx USART1
 #define USARTTx GPIO_Pin_9
 #define USARTRx GPIO_Pin_10
-#define GPIOx GPIOA
+#define GPIOx_USART GPIOA
 #define DMAx DMA1
 #define USART_DMA_TX_CH DMA1_Channel4 // USART1 TX
 #define USART_DMA_RX_CH DMA1_Channel5 // USART1 RX
@@ -55,6 +55,6 @@ typedef struct {
 
 void User_USART_Init(void);
 void USARTx_IRQHandler(void);
-// extern UCB_CB UxCB;
+extern UCB_CB UxCB;
 
 #endif /* __UASRT_H__ */

@@ -2,68 +2,51 @@
 #include <stdio.h>
 #include "Delay.h"
 #include "OLED.h"
-#include "I2C.h"
+#include "UserIIC.h"
 #include "UserUSART.h"
 #include "AT24C256.h"
+#include "W25Q64.h"
+#include "UserSPI.h"
 
-extern UCB_CB UxCB;
-volatile uint16_t  i;
-uint16_t buffLen =64;
+void printError(int err);
+void USART1_IRQHandler(void);
 
-void printError(int err)
-{
-    switch (err)
-    {
-    case ERR_OK:
-        printf("ERR_OK\r\n");
-        break;
-    case ERR_NAK:
-        printf("ERR_NAK\r\n");
-        break;
-    case ERR_TIMEOUT:
-        printf("ERR_TIMEOUT\r\n");
-        break;
-    case ERR_BUSY:
-        printf("ERR_BUSY\r\n");
-        break;
-    case ERR_ADD_NAK:
-        printf("ERR_ADD_NAK\r\n");
-        break;
-    case ERR_MEM_NAK:
-        printf("ERR_MEM_NAK\r\n");
-        break;
-    default:
-        printf("Unknown error code: %d\r\n", err);
-        break;
-    }
-}
+uint32_t i, j;
 
 int main(void)
 {
     User_USART_Init();
-    UserIICInit();
+    User_IIC_Init();
     OLED_Init();
-
-
+    W25Q64_Init();
 
     // OLED_ShowString(1, 3, "HelloWorld!");
     OLED_Clear();
 
     printf("HelloWorld!\n");
 
-    for (i = 0; i < buffLen; i++)
+    uint8_t wBuff[W25Q64_PAGE_SIZE];
+    uint8_t rBuff[W25Q64_PAGE_SIZE];
+
+    W25Q64_EraseBlock64K(0);
+
+    for (i = 0; i < W25Q64_BLOCK_PAGE; i++)
     {
-        printError(AT24C256_WriteByte(i, (uint8_t)i));
-        Delay_ms(6); // 等待写入完成
-        OLED_ShowNum(1,1,(uint8_t)i,3);
-    }
-    uint8_t buf[buffLen];
-    printError(AT24C256_ReadBytes(0, buf, buffLen));
-    for (i = 0; i < buffLen; i++)
-    {
-        printf("地址%d= %d\r\n", i, buf[i]);
+        for (j = 0; j < W25Q64_PAGE_SIZE; j++)
+            wBuff[j] = i;
+        W25Q64_PageWrite(wBuff, i);
     }
 
+    for (i = 0; i < W25Q64_BLOCK_PAGE; i++)
+    {
+        W25Q64_PageRead(rBuff, i);
+        for (j = 0; j < W25Q64_PAGE_SIZE; j++)
+        {
+            printf("addr %lu = %d\r\n",
+                   (uint32_t)i * W25Q64_PAGE_SIZE + j,
+                   rBuff[j]);
+        }
+    }
 
     while (1)
     {
@@ -87,4 +70,25 @@ int main(void)
 void USART1_IRQHandler(void)
 {
     USARTx_IRQHandler();
+}
+
+void printError(int err)
+{
+    switch (err)
+    {
+    case ERR_OK:
+        break;
+    case ERR_ADD_NAK:
+        printf("ERR_ADD_NAK\r\n");
+        break;
+    case ERR_MEM_NAK:
+        printf("ERR_MEM_NAK\r\n");
+        break;
+    case ERR_DATA_NAK:
+        printf("ERR_DATA_NAK\r\n");
+        break;
+    default:
+        printf("Unknown error code: %d\r\n", err);
+        break;
+    }
 }
