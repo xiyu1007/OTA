@@ -749,6 +749,11 @@
               <FileType>1</FileType>
               <FilePath>.\UserLib\Src\Log.c</FilePath>
             </File>
+            <File>
+              <FileName>BOOT.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\UserLib\Src\BOOT.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -793,6 +798,16 @@
               <FileName>Log.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\UserLib\Inc\Log.h</FilePath>
+            </File>
+            <File>
+              <FileName>BOOT.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\UserLib\Inc\BOOT.h</FilePath>
+            </File>
+            <File>
+              <FileName>main.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\UserLib\Inc\main.h</FilePath>
             </File>
           </Files>
         </Group>

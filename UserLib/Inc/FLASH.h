@@ -3,8 +3,8 @@
 
 #include "stm32f10x.h"
 
-#define FLASH_BASE_ADDR (uint32_t)(0x08000000)
-#define FLASH_BASE_PTR ((__IO uint32_t*) (FLASH_BASE_ADDR))
+#define FLASH_BASE_ADDR (uint32_t)(0x08000000) // STM32F103CT6 的 FLASH 基地址
+#define FLASH_BASE_PTR ((__IO uint32_t*) (FLASH_BASE_ADDR)) // FLASH 基指针
 #define FLASH_PAGE_BYTE_NUM (0x00000400) // 1 KB，1024 字节 = 256 字
 #define FLASH_PAGE_WORD_NUM FLASH_PAGE_BYTE_NUM / sizeof(uint32_t) // 对于字读，每页的偏移(字)数 = 256
 #define FLASH_PAGE_NUM 64 // 64 页，STM31F103CT6的页数（64k）

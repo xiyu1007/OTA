@@ -2,8 +2,8 @@
 #define __USERIIC_H__
 
 #define GPIOx_IIC GPIOB
-#define IIC_SCL_Pin GPIO_Pin_14
-#define IIC_SDA_Pin GPIO_Pin_15
+#define IIC_SCL_Pin GPIO_Pin_13
+#define IIC_SDA_Pin GPIO_Pin_14
 
 #define IIC_DELAY  2
 #define IIC_ACK_OK    0

@@ -79,8 +79,7 @@ uint8_t IICReceiveByte(uint8_t Ack)
         Delay_us(IIC_DELAY); // 确保稳定，下面需要释放 SDA
         IIC_SCL_L;           // 先拉低避免发送停止位
         IIC_SDA_H;           // 释放 SDA 恢复空闲状态
-    }
-    else
+    } else
     {
         IIC_SDA_H;
         IIC_SCL_H;

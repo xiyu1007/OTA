@@ -17,8 +17,9 @@
 #define ERR_DATA_NAK 3
 
 int8_t AT24C256_WriteByte(uint16_t memAddr, uint8_t byte);
-int8_t AT24C256_WritePage(uint16_t memAddr, uint8_t *bytes, uint16_t writeLen);
+int8_t AT24C256_WriteBytes(uint16_t memAddr, uint8_t *bytes, uint16_t writeLen);
 int8_t AT24C256_ReadBytes(uint16_t memAddr, uint8_t *bytes, uint16_t readLen);
+void AT24C256_ReadOtaInfo(void);
 
 #endif /* __AT24C256_H__ */
 
