@@ -739,6 +739,16 @@
               <FileType>1</FileType>
               <FilePath>.\UserLib\Src\W25Q64.c</FilePath>
             </File>
+            <File>
+              <FileName>FLASH.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\UserLib\Src\FLASH.c</FilePath>
+            </File>
+            <File>
+              <FileName>Log.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\UserLib\Src\Log.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -773,6 +783,16 @@
               <FileName>W25Q64.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\UserLib\Inc\W25Q64.h</FilePath>
+            </File>
+            <File>
+              <FileName>FLASH.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\UserLib\Inc\FLASH.h</FilePath>
+            </File>
+            <File>
+              <FileName>Log.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\UserLib\Inc\Log.h</FilePath>
             </File>
           </Files>
         </Group>

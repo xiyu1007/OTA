@@ -1,6 +1,6 @@
 #include "stm32f10x.h"
 #include "UserUSART.h"
-#include <stdio.h>
+// #include <stdio.h>
 
 uint8_t URxBuffer[U_RX_SIZE]; // 接收缓冲区
 UCB_CB UxCB;
@@ -107,15 +107,15 @@ void UxCB_Init(void)
     UxCB.URxCount = 0;
 }
 
-int fputc(int ch, FILE *f)
-{
-    // 1.发送数据寄存器为空
-    while (USART_GetFlagStatus(USARTx, USART_FLAG_TXE) == RESET)
-        ;
-    // 2.写入数据到数据寄存器, int 类型转换为字节类型
-    USART_SendData(USARTx, (uint8_t)ch);
-    return ch;
-}
+// int fputc(int ch, FILE *f)
+// {
+//     // 1.发送数据寄存器为空
+//     while (USART_GetFlagStatus(USARTx, USART_FLAG_TXE) == RESET)
+//         ;
+//     // 2.写入数据到数据寄存器, int 类型转换为字节类型
+//     USART_SendData(USARTx, (uint8_t)ch);
+//     return ch;
+// }
 
 void User_DMA_Init(void)
 {
