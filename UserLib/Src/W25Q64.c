@@ -76,7 +76,6 @@ void W25Q64_PageWrite(uint8_t *wBuff, uint16_t pageNum)
     W25Q64_WriteBusy(); // query erase status
 }
 
-
 void W25Q64_PageRead(uint8_t *rBuff, uint16_t pageNum)
 {
     uint32_t addr = pageNum * W25Q64_PAGE_SIZE;

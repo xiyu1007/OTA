@@ -27,7 +27,7 @@ uint8_t FLASH_ReadByte(uint32_t addr)
 //   FLASH_COMPLETE,
 //   FLASH_TIMEOUT
 // }FLASH_Status;
-void UserFLASH_EraseAllPages(void)
+void User_FLASH_EraseAllPages(void)
 {
     FLASH_Unlock();
     // 擦除页
@@ -36,7 +36,7 @@ void UserFLASH_EraseAllPages(void)
         FLASH_Lock();
 }
 
-void UserFLASH_ErasePage(uint8_t pageBegin, uint8_t pageNum)
+void User_FLASH_ErasePage(uint8_t pageBegin, uint8_t pageNum)
 {
     // FLASH_Status FLASH_ErasePage(uint32_t Page_Address);
     FLASH_Unlock();
@@ -48,7 +48,7 @@ void UserFLASH_ErasePage(uint8_t pageBegin, uint8_t pageNum)
     FLASH_Lock();
 }
 
-void UserFLASH_WriteFromPage(uint32_t pageBegin, uint32_t *wdata, uint32_t wlen)
+void User_FLASH_WriteFromPage(uint32_t pageBegin, uint32_t *wdata, uint32_t wlen)
 {
     // 一次写4字节，地址每次增加4字节
     if (wlen % 4 != 0)
@@ -65,7 +65,7 @@ void UserFLASH_WriteFromPage(uint32_t pageBegin, uint32_t *wdata, uint32_t wlen)
     FLASH_Lock();
 }
 
-void UserFLASH_Write(uint32_t addr, uint32_t *wdata, uint32_t wlen)
+void User_FLASH_Write(uint32_t addr, uint32_t *wdata, uint32_t wlen)
 {
     // 一次写4字节，地址每次增加4字节
     if (wlen % 4 != 0)

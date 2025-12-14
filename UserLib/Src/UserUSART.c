@@ -24,23 +24,7 @@ void User_USART_Init(void)
     NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStruct);
-
-    if (GPIOx_USART == GPIOA)
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-    else if (GPIOx_USART == GPIOB)
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-    else if (GPIOx_USART == GPIOC)
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
-
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
-    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
-    GPIO_InitStruct.GPIO_Pin = USARTTx;
-    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOx_USART, &GPIO_InitStruct);
-    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;
-    GPIO_InitStruct.GPIO_Pin = USARTRx;
-    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOx_USART, &GPIO_InitStruct);
+    
 
     if (USARTx == USART1)
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
@@ -57,6 +41,25 @@ void User_USART_Init(void)
     USART_InitStruct.USART_StopBits = USART_StopBits_1;
     USART_InitStruct.USART_WordLength = USART_WordLength_8b;
     USART_Init(USARTx, &USART_InitStruct);
+    
+    
+    if (GPIOx_USART == GPIOA)
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+    else if (GPIOx_USART == GPIOB)
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+    else if (GPIOx_USART == GPIOC)
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+    GPIO_InitStruct.GPIO_Pin = USARTTx;
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOx_USART, &GPIO_InitStruct);
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;
+    GPIO_InitStruct.GPIO_Pin = USARTRx;
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOx_USART, &GPIO_InitStruct);
+    
 
     // 使能串口 IDLE 中断
     USART_ITConfig(USARTx, USART_IT_IDLE, ENABLE);
@@ -64,7 +67,7 @@ void User_USART_Init(void)
 
     UxCB_Init();
     User_DMA_Init();
-    USART_Cmd(USARTx, ENABLE);
+    USART_Cmd(USARTx, ENABLE);  
 }
 
 void USARTx_IRQHandler(void)
@@ -107,15 +110,15 @@ void UxCB_Init(void)
     UxCB.URxCount = 0;
 }
 
-// int fputc(int ch, FILE *f)
-// {
-//     // 1.发送数据寄存器为空
-//     while (USART_GetFlagStatus(USARTx, USART_FLAG_TXE) == RESET)
-//         ;
-//     // 2.写入数据到数据寄存器, int 类型转换为字节类型
-//     USART_SendData(USARTx, (uint8_t)ch);
-//     return ch;
-// }
+int fputc(int ch, FILE *f)
+{
+    // 1.发送数据寄存器为空
+    while (USART_GetFlagStatus(USARTx, USART_FLAG_TXE) == RESET)
+        ;
+    // 2.写入数据到数据寄存器, int 类型转换为字节类型
+    USART_SendData(USARTx, (uint8_t)ch);
+    return ch;
+}
 
 void User_DMA_Init(void)
 {

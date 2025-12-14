@@ -56,5 +56,6 @@ typedef struct {
 void User_USART_Init(void);
 void USARTx_IRQHandler(void);
 extern UCB_CB UxCB;
+extern uint8_t URxBuffer[U_RX_SIZE];
 
 #endif /* __UASRT_H__ */

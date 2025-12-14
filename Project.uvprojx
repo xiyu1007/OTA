@@ -754,6 +754,11 @@
               <FileType>1</FileType>
               <FilePath>.\UserLib\Src\BOOT.c</FilePath>
             </File>
+            <File>
+              <FileName>CRC.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\UserLib\Src\CRC.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -803,6 +808,11 @@
               <FileName>BOOT.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\UserLib\Inc\BOOT.h</FilePath>
+            </File>
+            <File>
+              <FileName>CRC.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\UserLib\Inc\CRC.h</FilePath>
             </File>
             <File>
               <FileName>main.h</FileName>
