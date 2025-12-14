@@ -1,4 +1,3 @@
-# OTA
 # 硬件
 1. STM32F103C8T6
 2. W25Q64
@@ -836,6 +835,7 @@ SR3（15h / 11h）——**高级控制**
 64KB 块擦除指令（擦除后的数值为 0xFF）
 ![](attachment/5200652b4ac864721a4c3ac6998a7aec.png)
 ![](attachment/0995ae2f71e8957a0b899e2ea974ff1e.png)
+
 64k 擦除指令需要发送 4 个字节，第一个字节是指令，后三个字节是地址（0 到 23 位）
 地址总共 24 位（3 字节）
 
@@ -1358,8 +1358,10 @@ uint16_t SRAM_Read(uint32_t addr) {
 STM32 的 FLASH 默认就是用来存放“程序文件（代码）”的，上电 / 复位后，CPU 从 FLASH 取指令执行，因此，示例时擦除后第 0 页（0x0800_0000-0x0800_0400）时，程序代码以及不存在了也不会继续执行。**而 OTA 需要做的就是擦除代码，然后写入到 FLASH 的指定地址（假设 0x08005000，让代码跳转到这个地址执行，如果需要升级代码也是将代码下载到 0x08005000）。**
 注意：这是**内部 Flash**，**不是通过 FSMC 连接的外部存储器**。Flash 是 MCU 内部可擦写的非易失性存储器，用于存放程序代码和数据。掉电也不会丢失。STM32F103 系列 MCU ，内置 Flash（存程序）和 SRAM（存运行数据），还配有 CRC 校验单元保证软件和数据完整性，非常适合低功耗、实时性要求高的嵌入式系统。
 向量表地址起始地址是（STM32 的 FLASH 的起始地址） `0x08000000`
+
 ![](attachment/787f6db1ead399f094456e910462ac0a.png)
 ![](attachment/835cb0407103f68bd16c75c2ef89dafd.png)
+
 举个例子,如果发生了异常 11(SVC),则 NVIC 会计算出偏移移量是 11x4=0x2C,然后从那里取出服务例程的入口地址并跳入。0 号异常的功能则是个另类,它并不是什么入口地址,而是给出了复位后 MSP 的初值。
 
 Cortex-M3 内核的 32 位地址空间（简化）：
@@ -1373,6 +1375,7 @@ Cortex-M3 内核的 32 位地址空间（简化）：
 | 类型       | 容量    | 位于哪里                    | 访问方式                   |
 | -------- | ----- | ----------------------- | ---------------------- |
 | 片上 Flash | 64 KB | 内核存储空间（Code / Flash 区域） | CPU 直接访问，像访问内存一样（内存映射） |
+
 STM32F103C8T6 属于低密度 64 KB Flash，**有 64 页**（？）
 - 刚好 32 KB * 2 字节？（Flash 是 16 位总线，每单元 2 字节），**手册显示只要 0~31 页**
 - 总容量 = 32 页 * 1 KB = 32 KB \*2? 实际就是 64 KB ???
@@ -1466,11 +1469,12 @@ STM32F103C8T6 属于低密度 64 KB Flash，**有 64 页**（？）
 “在编程过程中（BSY 位为 '1'），任何读写闪存的操作都会使 **CPU 暂停**，直到此次闪存编程结束。”
 
 ### 解锁（读取无须解锁）
-|名称|英文名|位宽|字节数|典型用途举例|
-|:--|:--|:--|:--|:--|
-|字节|byte|8 bit|1|`uint8_t`、字符|
-|半字|half-word|16 bit|2|`uint16_t`、STM16 位寄存器|
-|字|word|32 bit|4|`uint32_t`、32 位寄存器、栈对齐单位|
+| 名称  | 英文名       | 位宽     | 字节数 | 典型用途举例                   |
+| :-- | :-------- | :----- | :-- | :----------------------- |
+| 字节  | byte      | 8 bit  | 1   | `uint8_t`、字符             |
+| 半字  | half-word | 16 bit | 2   | `uint16_t`、STM16 位寄存器    |
+| 字   | word      | 32 bit | 4   | `uint32_t`、32 位寄存器、栈对齐单位 |
+
 ![](attachment/80c3832788e542958f1069315d073efd.png)
 ![](attachment/9da3faaf83c817fbe74912097231e6ff.png)
 
@@ -1802,9 +1806,10 @@ MSR <special_reg>, <gp_reg> ; 写通用寄存器的值到特殊功能寄存器
 
 如：  
 ![](attachment/e827ed78f43b9e9a438e62d8bd9b7856.png)
-xPSR：
-![](attachment/21c28bba18b45337079b7e5200a04978.png)
 
+xPSR：
+
+![](attachment/21c28bba18b45337079b7e5200a04978.png)
 
 通过MRS/MSR指令，这3个PSRs即可以单独访问，也可以组合访问（2个组合，3个组合都可以）。
 当使用三合一的方式访问时，应使用名字“xPSR”或者“PSR”。
@@ -2299,14 +2304,16 @@ vector_addr = VTOR + exception_number * 4
 ### 测试
 #### **设置 APP 程序烧录起始地址**，后称 OTA_A
 方法 1
-vscode 修改 `Project.uvprojx` 文件，crtl+F:  `OCR_RVCT4`  -> `StartAddress`
+vscode 修改 `Project.uvprojx` 文件，crtl+F:  `OCR_RVCT4`  修改 `StartAddress`
 ```c
 <StartAddress>0x08000000</StartAddress>
 ```
 修改为 `0x08005000`
 
 方法 2
+
 ![](attachment/68d02b7780b3df52fe4ccf1c79d06e16.png)
+
 修改为 `0x08005000`
 
 如果烧录出现 **# flash download failed-cortex M3**，可以尝试把 Debug->ST-Link->Setting->Flash Download 里的地址该为 `0x08005000` 试一下
