@@ -1,4 +1,8 @@
 # OTA
+# 硬件
+1. STM32F103C8T6
+2. W25Q64
+3. AT24C256
 
 # 环形指针
 ![](attachment/7de2072fef70a4bef70469fa3f3a47b2.png)
